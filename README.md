@@ -95,7 +95,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=prod
 ### JRA-VAN（実データ）連携
 
 `keiba.datasource=jvlink` で `JvLinkRaceDataSource` が有効になります。
-実データ取得には **Windows環境・JRA-VAN Data Lab. の契約・JACOB（Java-COM Bridge）** が必要です。詳細は設計書の「8. JRA-VAN連携メモ」を参照。
+実データ取得には **Windows環境・JRA-VAN Data Lab. の契約・JACOB（Java-COM Bridge）** が必要です。
+取り込みフロー・レコード種別・マッピング・バッチ運用・実データで宝塚記念に使うまでの手順は
+[docs/jravan-integration.md](docs/jravan-integration.md) にまとめています。
 
 ## ディレクトリ構成
 
