@@ -54,8 +54,23 @@
         <p class="hint">勝率 = 通算勝利 ÷ 通算出走。条件適性は「この距離・馬場への向き具合」を主観で0〜100。</p>
     </section>
 
+    <section class="form-card">
+        <h2>一括入力（まとめて貼り付け）</h2>
+        <form th:action="@{'/races/' + ${race.id} + '/entries/bulk'}" method="post" class="stack">
+            <label>1行＝1頭・カンマ区切り
+                <textarea name="bulk" rows="8" style="width:100%;font-family:monospace;"
+placeholder="馬番,馬名,性別,騎手,斤量,通算出走,通算勝利,騎手勝率%,条件適性
+1,アサヒノキセキ,牡,田中 一郎,57,12,4,21,80
+2,ミドリノカゼ,牝,鈴木 花子,55,8,2,15,65"></textarea>
+            </label>
+            <button type="submit" class="btn-primary">まとめて追加</button>
+        </form>
+        <p class="hint"># で始まる行・空行は無視。末尾の項目は省略可。手打ちより速く入力できます。</p>
+    </section>
+
     <p class="cta">
         <a th:href="@{'/races/' + ${race.id}}" class="btn-primary as-link">勝率を予想する →</a>
+        ・<a th:href="@{'/races/' + ${race.id} + '/result'}">結果を入力／照合する</a>
         ・<a th:href="@{/}">レース一覧へ</a>
     </p>
 </main>

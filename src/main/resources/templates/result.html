@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${race.name} + ' | 結果照合'">結果照合</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="site-header">
+    <h1 th:text="${race.name} + '：結果照合'">結果照合</h1>
+    <p class="subtitle">
+        <span th:text="${#temporals.format(race.raceDate, 'yyyy/MM/dd')}">日付</span>
+        ・<span th:text="${race.course}">競馬場</span>
+        ・<span th:text="${race.distanceMeters} + 'm'">距離</span>
+        ・<span th:text="${race.surface.name() == 'TURF'} ? '芝' : 'ダート'">馬場</span>
+        ・<span th:text="${race.grade}">グレード</span>
+    </p>
+</header>
+<main>
+    <!-- 的中サマリー -->
+    <section class="summary-card" th:if="${evaluation.hasResults()}">
+        <h2>的中判定</h2>
+        <div class="summary-grid">
+            <div>
+                <span>実際の1着</span>
+                <strong th:text="${evaluation.actualWinnerHorseNo()} + '番 ' + ${evaluation.actualWinnerName()}">—</strong>
+            </div>
+            <div>
+                <span>本命的中（予想1位＝1着）</span>
+                <strong th:text="${evaluation.top1Hit()} ? '◎ 的中' : '× 外れ'"
+                        th:style="${evaluation.top1Hit()} ? 'color:#1b5e20' : 'color:#c62828'">—</strong>
+            </div>
+            <div>
+                <span>3着以内的中（1着が予想上位3頭）</span>
+                <strong th:text="${evaluation.top3Hit()} ? '○ 的中' : '× 外れ'"
+                        th:style="${evaluation.top3Hit()} ? 'color:#1b5e20' : 'color:#c62828'">—</strong>
+            </div>
+        </div>
+    </section>
+    <p th:unless="${evaluation.hasResults()}" class="hint">
+        まだ実着順が未入力です。下のフォームに各馬の着順を入れて保存すると、的中判定が表示されます。
+    </p>
+
+    <!-- 予想 vs 実結果 -->
+    <h2>予想 vs 実着順</h2>
+    <table class="prediction-table">
+        <thead>
+        <tr><th>予想順位</th><th>馬番</th><th>馬名</th><th>予想勝率</th><th>実着順</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${evaluation.rows()}" th:classappend="${r.isActualWinner()} ? 'top-pick'">
+            <td class="rank" th:text="${r.predRank()}">1</td>
+            <td th:text="${r.horseNo()}">1</td>
+            <td class="horse-name" th:text="${r.horseName()}">馬名</td>
+            <td class="prob" th:text="${r.winPercent()}">0.0%</td>
+            <td th:text="${r.actualFinish() != null} ? ${r.actualFinish()} + '着' : '—'">—</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 着順入力 -->
+    <section class="form-card">
+        <h2>実着順を入力</h2>
+        <form th:action="@{'/races/' + ${race.id} + '/results'}" method="post">
+            <table class="prediction-table">
+                <thead><tr><th>馬番</th><th>馬名</th><th>着順</th></tr></thead>
+                <tbody>
+                <tr th:each="e : ${race.entries}">
+                    <td th:text="${e.horseNo}">1</td>
+                    <td class="horse-name" th:text="${e.horse.name}">馬名</td>
+                    <td>
+                        <input type="number" min="1" style="width:70px"
+                               th:name="'finish_' + ${e.id}" th:value="${e.finishPosition}">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <p><button type="submit" class="btn-primary">着順を保存して照合</button></p>
+        </form>
+        <p class="hint">公式の確定着順を見ながら入力してください（1着＝1）。保存するとこのレースは「確定済み」になります。</p>
+    </section>
+
+    <p class="cta">
+        <a th:href="@{'/races/' + ${race.id}}" class="btn-primary as-link">予想ページ →</a>
+        ・<a th:href="@{'/races/' + ${race.id} + '/edit'}">出走馬を編集</a>
+        ・<a th:href="@{/}">レース一覧へ</a>
+    </p>
+</main>
+</body>
+</html>

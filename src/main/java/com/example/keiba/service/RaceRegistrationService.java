@@ -88,4 +88,93 @@ public class RaceRegistrationService {
     private double clamp01(double v) {
         return Math.max(0.0, Math.min(1.0, v));
     }
+
+    /**
+     * 出馬表を一括登録する。1行＝1頭で、カンマ区切り:
+     * <pre>馬番,馬名,性別,騎手,斤量,通算出走,通算勝利,騎手勝率%,条件適性(0-100)</pre>
+     * 先頭が # の行・空行は無視。末尾の項目は省略可（既定値で補完）。
+     *
+     * @return 追加した頭数
+     */
+    @Transactional
+    public int addEntriesBulk(Long raceId, String text) {
+        if (text == null || text.isBlank()) {
+            return 0;
+        }
+        int added = 0;
+        for (String raw : text.split("\\r?\\n")) {
+            String line = raw.trim();
+            if (line.isEmpty() || line.startsWith("#")) {
+                continue;
+            }
+            String[] c = line.split(",");
+            // 必須: 馬番, 馬名
+            if (c.length < 2 || c[0].trim().isEmpty() || c[1].trim().isEmpty()) {
+                continue;
+            }
+            int horseNo = parseInt(get(c, 0), 0);
+            if (horseNo <= 0) {
+                continue;
+            }
+            addEntry(
+                    raceId,
+                    horseNo,
+                    0,
+                    get(c, 1),
+                    get(c, 2),
+                    get(c, 3),
+                    parseDouble(get(c, 4), 55.0),
+                    parseInt(get(c, 5), 0),
+                    parseInt(get(c, 6), 0),
+                    parseDouble(get(c, 7), 0.0),
+                    parseDouble(get(c, 8), 50.0));
+            added++;
+        }
+        return added;
+    }
+
+    /**
+     * 実際の着順を登録し、レースを確定済みにする。
+     *
+     * @param finishByEntryId 出走エントリID -> 着順（null/0は未入力として無視）
+     */
+    @Transactional
+    public void setResults(Long raceId, java.util.Map<Long, Integer> finishByEntryId) {
+        Race race = raceRepository.findWithEntriesById(raceId);
+        if (race == null) {
+            throw new RaceNotFoundException(raceId);
+        }
+        boolean any = false;
+        for (RaceEntry e : race.getEntries()) {
+            Integer pos = finishByEntryId.get(e.getId());
+            if (pos != null && pos > 0) {
+                e.setFinishPosition(pos);
+                any = true;
+            }
+        }
+        if (any) {
+            race.setFinished(true);
+        }
+        raceRepository.save(race);
+    }
+
+    private static String get(String[] arr, int i) {
+        return i < arr.length ? arr[i].trim() : "";
+    }
+
+    private static int parseInt(String s, int def) {
+        try {
+            return s.isEmpty() ? def : Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+    private static double parseDouble(String s, double def) {
+        try {
+            return s.isEmpty() ? def : Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
 }
