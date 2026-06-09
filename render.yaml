@@ -1,0 +1,12 @@
+# Render (https://render.com) で Docker デプロイするための設定。
+# ダッシュボードで "New + > Blueprint" からこのリポジトリを指定すれば自動構築される。
+services:
+  - type: web
+    name: keiba-prediction
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: JAVA_TOOL_OPTIONS
+        value: "-Xmx400m"

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新規レース登録</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="site-header">
+    <h1>新規レース登録</h1>
+    <p class="subtitle">出馬表を手入力して勝率を予想（<a th:href="@{/}">← レース一覧</a>）</p>
+</header>
+<main>
+    <section class="form-card">
+        <form th:action="@{/races}" method="post" class="stack">
+            <label>レース名 <input type="text" name="name" placeholder="例: 宝塚記念" required></label>
+            <label>開催日 <input type="date" name="raceDate" required></label>
+            <label>競馬場 <input type="text" name="course" placeholder="例: 阪神" required></label>
+            <label>距離(m) <input type="number" name="distanceMeters" value="2200" min="800" required></label>
+            <label>馬場
+                <select name="surface">
+                    <option th:each="s : ${surfaces}" th:value="${s}"
+                            th:text="${s.name() == 'TURF'} ? '芝' : 'ダート'">芝</option>
+                </select>
+            </label>
+            <label>グレード <input type="text" name="grade" placeholder="例: G1"></label>
+            <button type="submit" class="btn-primary">作成して出走馬を入力 →</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

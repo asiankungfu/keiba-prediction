@@ -13,6 +13,7 @@
 </header>
 
 <main>
+    <p class="cta"><a th:href="@{/races/new}" class="btn-primary as-link">＋ 新規レースを登録（手入力で予想）</a></p>
     <h2>予想対象レース</h2>
     <ul class="race-list">
         <li th:each="race : ${races}" class="race-card">

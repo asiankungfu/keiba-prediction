@@ -1,0 +1,21 @@
+# 本番想定（PostgreSQL）でローカル起動: docker compose up --build
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: keiba
+      POSTGRES_USER: keiba
+      POSTGRES_PASSWORD: keiba
+    ports:
+      - "5432:5432"
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://db:5432/keiba
+      DB_USER: keiba
+      DB_PASSWORD: keiba
+    ports:
+      - "8080:8080"

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${race.name} + ' | 出走馬入力'">出走馬入力</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="site-header">
+    <h1 th:text="${race.name}">レース名</h1>
+    <p class="subtitle">
+        <span th:text="${#temporals.format(race.raceDate, 'yyyy/MM/dd')}">日付</span>
+        ・<span th:text="${race.course}">競馬場</span>
+        ・<span th:text="${race.distanceMeters} + 'm'">距離</span>
+        ・<span th:text="${race.surface.name() == 'TURF'} ? '芝' : 'ダート'">馬場</span>
+        ・<span th:text="${race.grade}">グレード</span>
+    </p>
+</header>
+<main>
+    <h2>登録済みの出走馬（<span th:text="${#lists.size(race.entries)}">0</span>頭）</h2>
+    <table class="prediction-table">
+        <thead>
+        <tr><th>馬番</th><th>馬名</th><th>騎手</th><th>斤量</th><th>通算勝率</th><th>騎手勝率</th><th>条件適性</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="e : ${race.entries}">
+            <td th:text="${e.horseNo}">1</td>
+            <td class="horse-name" th:text="${e.horse.name}">馬名</td>
+            <td th:text="${e.jockeyName}">騎手</td>
+            <td th:text="${e.weightKg} + 'kg'">55kg</td>
+            <td th:text="${#numbers.formatPercent(e.careerWinRate, 1, 1)}">0.0%</td>
+            <td th:text="${#numbers.formatPercent(e.jockeyWinRate, 1, 1)}">0.0%</td>
+            <td th:text="${#numbers.formatPercent(e.conditionAptitude, 1, 0)}">50%</td>
+        </tr>
+        </tbody>
+    </table>
+    <p th:if="${#lists.isEmpty(race.entries)}" class="empty">まだ出走馬がいません。下のフォームから追加してください。</p>
+
+    <section class="form-card">
+        <h2>出走馬を追加</h2>
+        <form th:action="@{'/races/' + ${race.id} + '/entries'}" method="post" class="grid-form">
+            <label>馬番 <input type="number" name="horseNo" min="1" required></label>
+            <label>馬名 <input type="text" name="horseName" required></label>
+            <label>性別 <input type="text" name="sex" placeholder="牡/牝/セ" maxlength="2"></label>
+            <label>騎手 <input type="text" name="jockeyName"></label>
+            <label>斤量(kg) <input type="number" step="0.5" name="weightKg" value="55.0"></label>
+            <label>通算出走 <input type="number" name="careerStarts" value="0" min="0"></label>
+            <label>通算勝利 <input type="number" name="careerWins" value="0" min="0"></label>
+            <label>騎手勝率(%) <input type="number" step="0.1" name="jockeyWinPercent" value="0"></label>
+            <label>条件適性(0-100) <input type="number" name="conditionPercent" value="50" min="0" max="100"></label>
+            <button type="submit" class="btn-primary">この馬を追加</button>
+        </form>
+        <p class="hint">勝率 = 通算勝利 ÷ 通算出走。条件適性は「この距離・馬場への向き具合」を主観で0〜100。</p>
+    </section>
+
+    <p class="cta">
+        <a th:href="@{'/races/' + ${race.id}}" class="btn-primary as-link">勝率を予想する →</a>
+        ・<a th:href="@{/}">レース一覧へ</a>
+    </p>
+</main>
+</body>
+</html>

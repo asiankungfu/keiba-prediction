@@ -1,5 +1,7 @@
 # 🏇 競馬 勝率予想Webアプリ（keiba-prediction）
 
+![CI](https://github.com/asiankungfu/keiba-prediction/actions/workflows/ci.yml/badge.svg)
+
 JRA-VAN Data Lab.（JRA公式データサービス）のレースデータから、**次に行われるレースの各出走馬の勝率**を算出して表示するWebアプリです。
 就職活動のポートフォリオとして、業務系で重視される **レイヤード設計・関心の分離・テスト容易性** を意識して実装しました。
 
@@ -26,6 +28,18 @@ JRA-VAN Data Lab.（JRA公式データサービス）のレースデータから
 - **セットアップ不要で即起動** — 組込みDB(H2)＋同梱CSVで `mvn spring-boot:run` だけで動作。本番はプロファイル切替でPostgreSQL。
 - **説明可能な勝率モデル** — 特徴量の線形和を softmax 正規化（多クラスロジスティック回帰相当）。勝率はレース内で必ず合計100%。
 
+## 出馬表を手入力して予想（実レース対応）
+
+トップの「＋ 新規レースを登録」から、**出馬表を画面で手入力**して勝率を予想できます
+（スクレイピングに依存せず、公式の出馬表などを見ながら自分で入力する方式）。
+
+1. `/races/new` でレース（名称・日付・競馬場・距離・馬場・グレード）を作成
+2. `/races/{id}/edit` で出走馬を1頭ずつ追加（馬番・馬名・騎手・斤量・通算成績・騎手勝率・条件適性）
+3. `/races/{id}` で各馬の勝率を表示
+
+通算勝率は「通算勝利 ÷ 通算出走」で自動計算。実在のレース（例: 宝塚記念）の出馬表を入力すれば、
+その場で予想に使えます。
+
 ## 技術スタック
 
 Java 17 / Spring Boot 3.3（Web・Data JPA・Thymeleaf）/ H2・PostgreSQL / Maven / JUnit 5・AssertJ
@@ -50,6 +64,27 @@ p_i     = exp(score_i) / Σ_j exp(score_j)     ← レース内 softmax 正規�
 ```
 
 重み `w0..w4` は `application.yml`（`keiba.model.*`）で調整可能。実運用では過去データで学習した値に差し替える想定です。
+
+## Docker / デプロイ / CI
+
+**Dockerで起動（H2・単体）:**
+```bash
+docker build -t keiba-prediction .
+docker run -p 8080:8080 keiba-prediction   # http://localhost:8080/
+```
+
+**Docker Composeで起動（PostgreSQL・本番想定）:**
+```bash
+docker compose up --build
+```
+
+**クラウドへ公開（Render の例）:**
+1. このリポジトリをGitHubにpush（済み）。
+2. Render で「New + → Blueprint」からリポジトリを選ぶと `render.yaml` を読んで自動構築。
+3. 数分で `https://keiba-prediction.onrender.com` のような公開URLが発行される。
+   （無料プランは一定時間アクセスが無いとスリープし、初回アクセスが遅い点に注意）
+
+**CI（GitHub Actions）:** `main` への push / PR で `mvn verify`（ビルド＋テスト）が自動実行されます（`.github/workflows/ci.yml`）。READMEのバッジで結果が見えます。
 
 ## 動かし方
 
