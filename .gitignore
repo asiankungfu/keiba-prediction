@@ -1,0 +1,27 @@
+# Maven
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs / local
+*.log
+application-local.yml
+
+# Python（学習スクリプトの生成物）
+__pycache__/
+scripts/metrics.txt
+
+# JRA-VAN（再配布不可。各自で導入する）
+lib/jacob*.jar
+lib/JVDTLab*

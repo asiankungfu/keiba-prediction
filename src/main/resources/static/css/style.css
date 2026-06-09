@@ -1,0 +1,73 @@
+:root {
+    --green: #1b5e20;
+    --green-light: #2e7d32;
+    --accent: #c8a45c;
+    --bg: #f5f5f0;
+    --text: #222;
+    --muted: #666;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.site-header {
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    color: #fff;
+    padding: 24px 20px;
+}
+.site-header h1 { margin: 0; font-size: 1.6rem; }
+.subtitle { margin: 6px 0 0; opacity: 0.9; font-size: 0.9rem; }
+
+main { max-width: 880px; margin: 0 auto; padding: 24px 20px; }
+
+h2 { border-left: 5px solid var(--accent); padding-left: 10px; }
+
+.race-list { list-style: none; padding: 0; }
+.race-card {
+    background: #fff;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: transform .1s ease;
+}
+.race-card:hover { transform: translateY(-2px); }
+.race-card a { display: block; padding: 16px; text-decoration: none; color: inherit; }
+.race-name { font-weight: 700; font-size: 1.1rem; color: var(--green); }
+.race-meta { display: block; color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+
+.prediction-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.prediction-table th, .prediction-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+.prediction-table thead th { background: var(--green); color: #fff; }
+.prediction-table .horse-name { text-align: left; font-weight: 600; }
+.prediction-table .rank { font-weight: 700; color: var(--muted); }
+.prediction-table .prob { font-weight: 700; color: var(--green); }
+.prediction-table tr.top-pick { background: #fff8e6; }
+.prediction-table tr.top-pick .rank { color: var(--accent); }
+
+.bar-bg { background: #e6e6e6; border-radius: 6px; height: 12px; width: 120px; overflow: hidden; }
+.bar-fill { background: var(--accent); height: 100%; }
+
+.api-hint { color: var(--muted); font-size: 0.85rem; margin-top: 18px; }
+code { background: #eee; padding: 2px 6px; border-radius: 4px; }
+
+.empty { color: var(--muted); }
+.site-footer { max-width: 880px; margin: 0 auto; padding: 16px 20px 40px; color: var(--muted); }
+a { color: var(--green-light); }

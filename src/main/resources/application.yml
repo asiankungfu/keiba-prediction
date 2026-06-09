@@ -1,0 +1,54 @@
+# ====== デフォルト（デモ）構成 ======
+# セットアップ不要で起動できるよう、組込みH2 + 同梱CSV を既定にしている。
+spring:
+  application:
+    name: keiba-prediction
+  datasource:
+    url: jdbc:h2:mem:keiba;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate.format_sql: true
+  h2:
+    console:
+      enabled: true   # http://localhost:8080/h2-console で中身を確認できる
+
+# レースデータの取得元: csv（デフォルト） / jvlink（JRA-VAN, 要Windows+契約）
+keiba:
+  datasource: csv
+  # 勝率算出モデルの重み。
+  # 以下は scripts/train_and_evaluate.py で履歴データから学習した値
+  # （条件付きロジット, テストTop-1的中率 38.0%）。詳細は docs/evaluation.md。
+  model:
+    intercept: 0.0
+    career-win-rate: 4.7735
+    jockey-win-rate: 1.2579
+    condition-aptitude: 5.0588
+    weight-penalty: 0.1222
+    base-weight-kg: 55.0
+
+logging:
+  level:
+    com.example.keiba: INFO
+
+---
+# ====== 本番想定（PostgreSQL）構成: --spring.profiles.active=prod ======
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/keiba}
+    username: ${DB_USER:keiba}
+    password: ${DB_PASSWORD:keiba}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  h2:
+    console:
+      enabled: false

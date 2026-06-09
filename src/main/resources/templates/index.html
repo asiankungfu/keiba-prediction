@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>競馬 勝率予想</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="site-header">
+    <h1>🏇 競馬 勝率予想</h1>
+    <p class="subtitle">JRA-VAN Data Lab. のデータから次走の各馬の勝率を算出</p>
+</header>
+
+<main>
+    <h2>予想対象レース</h2>
+    <ul class="race-list">
+        <li th:each="race : ${races}" class="race-card">
+            <a th:href="@{'/races/' + ${race.id}}">
+                <span class="race-name" th:text="${race.name}">レース名</span>
+                <span class="race-meta">
+                    <span th:text="${#temporals.format(race.raceDate, 'yyyy/MM/dd')}">日付</span>
+                    ・<span th:text="${race.course}">競馬場</span>
+                    ・<span th:text="${race.distanceMeters} + 'm'">距離</span>
+                    ・<span th:text="${race.surface.name() == 'TURF'} ? '芝' : 'ダート'">馬場</span>
+                    ・<span th:text="${race.grade}">グレード</span>
+                </span>
+            </a>
+        </li>
+    </ul>
+    <p th:if="${#lists.isEmpty(races)}" class="empty">予想対象のレースがありません。</p>
+</main>
+
+<footer class="site-footer">
+    <small>※ 本サイトの勝率はデモ用モデルによる推定値です。馬券購入を保証・推奨するものではありません。</small>
+</footer>
+</body>
+</html>

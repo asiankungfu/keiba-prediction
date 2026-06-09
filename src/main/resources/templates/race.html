@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${race.name} + ' | 勝率予想'">レース勝率予想</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="site-header">
+    <h1 th:text="${race.name}">レース名</h1>
+    <p class="subtitle">
+        <span th:text="${#temporals.format(race.raceDate, 'yyyy/MM/dd')}">日付</span>
+        ・<span th:text="${race.course}">競馬場</span>
+        ・<span th:text="${race.distanceMeters} + 'm'">距離</span>
+        ・<span th:text="${race.surface.name() == 'TURF'} ? '芝' : 'ダート'">馬場</span>
+        ・<span th:text="${race.grade}">グレード</span>
+    </p>
+</header>
+
+<main>
+    <table class="prediction-table">
+        <thead>
+        <tr>
+            <th>予想順位</th>
+            <th>馬番</th>
+            <th>馬名</th>
+            <th>騎手</th>
+            <th>勝率</th>
+            <th>勝率バー</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${predictions}" th:classappend="${p.rank() == 1} ? 'top-pick'">
+            <td class="rank" th:text="${p.rank()}">1</td>
+            <td th:text="${p.horseNo()}">1</td>
+            <td class="horse-name" th:text="${p.horseName()}">馬名</td>
+            <td th:text="${p.jockeyName()}">騎手</td>
+            <td class="prob" th:text="${p.winPercentLabel()}">0.0%</td>
+            <td>
+                <div class="bar-bg">
+                    <div class="bar-fill"
+                         th:style="'width:' + ${#numbers.formatDecimal(p.winProbability() * 100, 1, 1)} + '%'"></div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="api-hint">
+        JSON で取得: <code th:text="'/api/races/' + ${race.id} + '/predictions'">/api/races/1/predictions</code>
+    </p>
+    <p><a th:href="@{/}">← レース一覧へ戻る</a></p>
+</main>
+
+<footer class="site-footer">
+    <small>※ 勝率はレース内で合計100%になるよう softmax 正規化した推定値です。</small>
+</footer>
+</body>
+</html>
