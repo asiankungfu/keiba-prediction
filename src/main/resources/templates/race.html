@@ -27,7 +27,8 @@
             <th>馬名</th>
             <th>騎手</th>
             <th>勝率</th>
-            <th>勝率バー</th>
+            <th>複勝率<br><small>(3着以内)</small></th>
+            <th>複勝率バー</th>
         </tr>
         </thead>
         <tbody>
@@ -37,10 +38,11 @@
             <td class="horse-name" th:text="${p.horseName()}">馬名</td>
             <td th:text="${p.jockeyName()}">騎手</td>
             <td class="prob" th:text="${p.winPercentLabel()}">0.0%</td>
+            <td class="prob" th:text="${p.top3PercentLabel()}">0.0%</td>
             <td>
                 <div class="bar-bg">
                     <div class="bar-fill"
-                         th:style="'width:' + ${#numbers.formatDecimal(p.winProbability() * 100, 1, 1)} + '%'"></div>
+                         th:style="'width:' + ${#numbers.formatDecimal(p.top3Probability() * 100, 1, 1)} + '%'"></div>
                 </div>
             </td>
         </tr>
@@ -54,7 +56,7 @@
 </main>
 
 <footer class="site-footer">
-    <small>※ 勝率はレース内で合計100%になるよう softmax 正規化した推定値です。</small>
+    <small>※ 勝率は softmax 正規化した推定値。複勝率（3着以内）は勝率からハーヴィル・モデルで算出した推定値です。</small>
 </footer>
 </body>
 </html>

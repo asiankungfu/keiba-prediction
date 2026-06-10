@@ -61,15 +61,18 @@ public class PredictionService {
         }
 
         Map<Long, Double> probabilities = calculator.calculateWinProbabilities(inputs);
+        Map<Long, Double> top3Probabilities = calculator.calculateTop3Probabilities(inputs);
 
         List<HorsePrediction> predictions = new ArrayList<>();
         for (RaceEntry e : race.getEntries()) {
             double p = probabilities.getOrDefault(e.getId(), 0.0);
+            double t3 = top3Probabilities.getOrDefault(e.getId(), 0.0);
             predictions.add(new HorsePrediction(
                     e.getHorseNo(),
                     e.getHorse().getName(),
                     e.getJockeyName(),
                     p,
+                    t3,
                     0 /* rank は後で付与 */));
         }
 
@@ -79,7 +82,8 @@ public class PredictionService {
         for (int i = 0; i < predictions.size(); i++) {
             HorsePrediction p = predictions.get(i);
             ranked.add(new HorsePrediction(
-                    p.horseNo(), p.horseName(), p.jockeyName(), p.winProbability(), i + 1));
+                    p.horseNo(), p.horseName(), p.jockeyName(),
+                    p.winProbability(), p.top3Probability(), i + 1));
         }
         return ranked;
     }

@@ -83,4 +83,65 @@ public class WinProbabilityCalculator {
         }
         return result;
     }
+
+    /**
+     * 各馬の「3着以内に入る確率（複勝率）」を算出する。
+     *
+     * <p>勝率 p_i をもとに <b>ハーヴィル・モデル</b>（Harville, 1973）で
+     * 1着・2着・3着になる確率を順に求め、その和をとる。直感的には
+     * 「勝率に比例して1着→2着→3着を非復元抽出していく」モデル。</p>
+     *
+     * <pre>
+     *   P(iが1着) = p_i
+     *   P(iが2着) = Σ_j p_j · p_i/(1−p_j)
+     *   P(iが3着) = Σ_j Σ_k p_j · p_k/(1−p_j) · p_i/(1−p_j−p_k)
+     *   複勝率_i  = P(1着)+P(2着)+P(3着)
+     * </pre>
+     *
+     * <p>全馬の複勝率の合計は約3.0（3頭が3着以内に入るため）になる。</p>
+     */
+    public Map<Long, Double> calculateTop3Probabilities(List<ScoringInput> inputs) {
+        Map<Long, Double> winMap = calculateWinProbabilities(inputs);
+        Map<Long, Double> result = new LinkedHashMap<>();
+        if (winMap.isEmpty()) {
+            return result;
+        }
+
+        int n = inputs.size();
+        long[] ids = new long[n];
+        double[] p = new double[n];
+        for (int i = 0; i < n; i++) {
+            ids[i] = inputs.get(i).entryId();
+            p[i] = winMap.get(ids[i]);
+        }
+
+        for (int i = 0; i < n; i++) {
+            double place1 = p[i];
+            double place2 = 0.0;
+            double place3 = 0.0;
+            for (int j = 0; j < n; j++) {
+                if (j == i) {
+                    continue;
+                }
+                double denom1 = 1.0 - p[j];
+                if (denom1 <= 1e-12) {
+                    continue;
+                }
+                place2 += p[j] * (p[i] / denom1);          // j が1着, i が2着
+                for (int k = 0; k < n; k++) {
+                    if (k == i || k == j) {
+                        continue;
+                    }
+                    double denom2 = 1.0 - p[j] - p[k];
+                    if (denom2 <= 1e-12) {
+                        continue;
+                    }
+                    // j,k が1,2着, i が3着
+                    place3 += p[j] * (p[k] / denom1) * (p[i] / denom2);
+                }
+            }
+            result.put(ids[i], Math.min(1.0, place1 + place2 + place3));
+        }
+        return result;
+    }
 }

@@ -22,14 +22,15 @@ spring:
 keiba:
   datasource: csv
   # 勝率算出モデルの重み。
-  # 以下は scripts/train_and_evaluate.py で履歴データから学習した値
-  # （条件付きロジット, テストTop-1的中率 38.0%）。詳細は docs/evaluation.md。
+  # scripts/train_and_evaluate.py で履歴データから学習した値（改良版v2:
+  # 特徴量の標準化 + L2正則化 + 5分割交差検証, CV Top-1的中率 49.0%±5.7）。
+  # 標準化空間で学習し、生の特徴量空間の重みに変換済み。詳細は docs/evaluation.md。
   model:
     intercept: 0.0
-    career-win-rate: 4.7735
-    jockey-win-rate: 1.2579
-    condition-aptitude: 5.0588
-    weight-penalty: 0.1222
+    career-win-rate: 12.1004
+    jockey-win-rate: 7.6849
+    condition-aptitude: 6.1785
+    weight-penalty: 0.1421
     base-weight-kg: 55.0
 
 logging:
