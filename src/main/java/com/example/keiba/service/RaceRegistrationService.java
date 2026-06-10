@@ -23,6 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RaceRegistrationService {
 
+    /**
+     * 通算勝率のベイズ縮小（Laplace平滑化）の事前分布パラメータ。
+     * 勝率 = (勝利 + α) / (出走 + α + β)。平均 α/(α+β) ≈ 1/6 ≒ 0.17、疑似カウント α+β = 6。
+     * これにより「3戦3勝（=勝率100%）」のような小標本の過信を補正する。
+     */
+    private static final double WINRATE_PRIOR_ALPHA = 1.0;
+    private static final double WINRATE_PRIOR_BETA = 5.0;
+
     private final RaceRepository raceRepository;
     private final HorseRepository horseRepository;
 
@@ -77,12 +85,20 @@ public class RaceRegistrationService {
         e.setJockeyName(jockeyName);
         e.setWeightKg(weightKg);
         e.setCareerStarts(careerStarts);
-        e.setCareerWinRate(careerStarts > 0 ? (double) careerWins / careerStarts : 0.0);
+        e.setCareerWinRate(shrunkWinRate(careerWins, careerStarts));
         e.setJockeyWinRate(clamp01(jockeyWinPercent / 100.0));
         e.setConditionAptitude(clamp01(conditionPercent / 100.0));
 
         race.addEntry(e);
         return raceRepository.save(race);
+    }
+
+    /**
+     * 通算勝率をベイズ縮小（Laplace平滑化）で算出する。
+     * 小標本（例: 3戦3勝）の極端な勝率を事前分布に寄せて補正する。
+     */
+    private double shrunkWinRate(int wins, int starts) {
+        return (wins + WINRATE_PRIOR_ALPHA) / (starts + WINRATE_PRIOR_ALPHA + WINRATE_PRIOR_BETA);
     }
 
     private double clamp01(double v) {
